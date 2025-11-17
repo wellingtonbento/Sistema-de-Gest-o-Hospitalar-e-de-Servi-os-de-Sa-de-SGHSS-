@@ -1,0 +1,2 @@
+# Sistema-de-Gest-o-Hospitalar-e-de-Servi-os-de-Sa-de-SGHSS-
+Este projeto faz parte de um trabalho acadêmico, no qual devo desenvolver uma API contendo um CRUD básico e autenticação. Aproveitarei esta oportunidade para reforçar meus conhecimentos em desenvolvimento de APIs. Embora seja um projeto relativamente pequeno, meu objetivo é demonstrar de forma sólida o que aprendi e a minha capacidade técnica.
