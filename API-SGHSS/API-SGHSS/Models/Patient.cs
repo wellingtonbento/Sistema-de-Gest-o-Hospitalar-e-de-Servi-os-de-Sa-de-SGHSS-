@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 
 namespace API_SGHSS.Models
 {
@@ -8,6 +9,8 @@ namespace API_SGHSS.Models
         public string? Name { get; set; }
         public string? Email { get; set; }
         public string? Cpf { get; set; }
+
+        [JsonIgnore]
         public IEnumerable<Appointment>? Appointments { get; set; }
 
         public Patient()

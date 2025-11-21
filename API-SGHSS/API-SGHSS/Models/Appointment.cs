@@ -1,4 +1,5 @@
 ﻿using API_SGHSS.Models.Enums;
+using System.Text.Json.Serialization;
 
 namespace API_SGHSS.Models
 {
@@ -10,9 +11,13 @@ namespace API_SGHSS.Models
         public AppointmentStatus QueryStatus { get; set; }
 
         public int PatientId { get; set; }
+
+        [JsonIgnore]
         public Patient? Patient { get; set; }
 
         public int DoctorId { get; set; }
+
+        [JsonIgnore]
         public Doctor? Doctor { get; set; }
     }
 }
