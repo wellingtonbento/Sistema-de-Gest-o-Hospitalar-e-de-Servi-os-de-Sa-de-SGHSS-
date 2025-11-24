@@ -1,13 +1,10 @@
 ﻿using API_SGHSS.Models.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
-namespace API_SGHSS.Models
+namespace API_SGHSS.DTOs.AppointmentDTOs
 {
-    public class Appointment
+    public class AppointmentCreateDTO
     {
-        public int Id { get; set; }
-
         [Required]
         public string? Description { get; set; }
 
@@ -18,11 +15,6 @@ namespace API_SGHSS.Models
         public AppointmentStatus QueryStatus { get; set; }
 
         public int PatientId { get; set; }
-
-        public Patient? Patient { get; set; }
-
         public int DoctorId { get; set; }
-
-        public Doctor? Doctor { get; set; }
     }
 }
