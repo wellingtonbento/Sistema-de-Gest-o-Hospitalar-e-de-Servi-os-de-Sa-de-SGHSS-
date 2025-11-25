@@ -1,6 +1,7 @@
 ﻿using API_SGHSS.DTOs.PatientDTOs;
 using API_SGHSS.Models;
 using API_SGHSS.Repositories.Interfaces;
+using API_SGHSS.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -12,13 +13,13 @@ namespace API_SGHSS.Controllers
     [ApiController]
     public class PatientController : ControllerBase
     {
-        private readonly IPatientRepository _repository;
+        private readonly IPatientService _service;
         private readonly ILogger<PatientController> _logger;
         private readonly IMapper _mapper;
 
-        public PatientController(IPatientRepository repository, ILogger<PatientController> logger, IMapper mapper)
+        public PatientController(IPatientService service, ILogger<PatientController> logger, IMapper mapper)
         {
-            _repository = repository;
+            _service = service;
             _logger = logger;
             _mapper = mapper; 
         }
@@ -28,7 +29,7 @@ namespace API_SGHSS.Controllers
         {
 
             _logger.LogInformation("Buscando todos os Pacientes Registrados");
-            var patients = _repository.GetPatients();
+            var patients = _service.GetPatients();
 
             _logger.LogInformation("Retornando todos os Pacientes Registrados");
             var patientsDTO = _mapper.Map<IEnumerable<PatientDTO>>(patients);
@@ -39,7 +40,7 @@ namespace API_SGHSS.Controllers
         public ActionResult<PatientDTO> Get(int id)
         {
             _logger.LogInformation($"Buscando o paciente com Id = {id}");
-            var patient = _repository.GetPatient(id);
+            var patient = _service.GetPatient(id);
 
             if (patient is null)
             {
@@ -58,11 +59,10 @@ namespace API_SGHSS.Controllers
             var patient = _mapper.Map<Patient>(patientCreateDTO);
 
             _logger.LogInformation("Criando um novo paciente");
-            var newPatient = _repository.Create(patient);
-
-            var newPatientDTO = _mapper.Map<PatientDTO>(newPatient);
+            var newPatient = _service.Create(patient);
 
             _logger.LogInformation("retornando o novo paciente");
+            var newPatientDTO = _mapper.Map<PatientDTO>(newPatient);
             return new CreatedAtRouteResult("ObterPatient", new { id = newPatientDTO.Id }, newPatientDTO);
         }
 
@@ -70,21 +70,22 @@ namespace API_SGHSS.Controllers
         public ActionResult<PatientDTO> Put(int id, PatientUpdateDTO patientUpdateDTO)
         {
             if (id != patientUpdateDTO.Id)
-                return BadRequest("Dados para atualizar um paciente está incorreto");
-
-            var existingPatient = _repository.GetPatient(id);
-
+            {
+                _logger.LogInformation("Dados para buscar um paciente estão inválidos");
+                return BadRequest("Dados para buscar um paciente estão inválidos");
+            }
+                
+            var existingPatient = _service.GetPatient(id);
             if (existingPatient is null)
                 return NotFound($"Paciente com ID igual a {id} não encontrado.");
 
             _mapper.Map(patientUpdateDTO, existingPatient);
 
             _logger.LogInformation("atualizando o paciente");
-            var updatingPatient = _repository.Update(existingPatient);
-
-            var updatingPatientDTO = _mapper.Map<PatientDTO>(existingPatient);
+            var updatingPatient = _service.Update(existingPatient);
 
             _logger.LogInformation("Retornando o paciente com os dados atualizados");
+            var updatingPatientDTO = _mapper.Map<PatientDTO>(existingPatient);
             return Ok(updatingPatientDTO);
         }
 
@@ -92,7 +93,7 @@ namespace API_SGHSS.Controllers
         public ActionResult Delete(int id)
         {
             _logger.LogInformation("Obtendo id do paciente para deletá-lo");
-            var patient = _repository.GetPatient(id);
+            var patient = _service.GetPatient(id);
 
             if (patient is null)
             {
@@ -101,7 +102,7 @@ namespace API_SGHSS.Controllers
             }
 
             _logger.LogInformation("Removendo o paciente do banco de dados e mostrando as informações do paciente removido");
-            _repository.Delete(id);
+            _service.Delete(id);
             return NoContent();
         }
     }

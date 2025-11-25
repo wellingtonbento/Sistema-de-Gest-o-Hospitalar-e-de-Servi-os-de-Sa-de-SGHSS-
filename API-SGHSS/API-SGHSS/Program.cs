@@ -3,6 +3,8 @@ using API_SGHSS.DTOs.Mappings;
 using API_SGHSS.Extensions;
 using API_SGHSS.Repositories;
 using API_SGHSS.Repositories.Interfaces;
+using API_SGHSS.Services;
+using API_SGHSS.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +23,10 @@ builder.Services.AddDbContext<SGHSSContext>(options =>
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 builder.Services.AddAutoMapper(cfg =>
 {

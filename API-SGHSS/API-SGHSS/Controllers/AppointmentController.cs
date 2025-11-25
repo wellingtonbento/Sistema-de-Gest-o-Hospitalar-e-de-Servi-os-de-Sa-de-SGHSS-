@@ -1,6 +1,7 @@
 ﻿using API_SGHSS.DTOs.AppointmentDTOs;
 using API_SGHSS.Models;
 using API_SGHSS.Repositories.Interfaces;
+using API_SGHSS.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +13,13 @@ namespace API_SGHSS.Controllers
     [ApiController]
     public class AppointmentController : ControllerBase
     {
-        private readonly IAppointmentRepository _repository;
+        private readonly IAppointmentService _service;
         private readonly ILogger<AppointmentController> _logger;
         private readonly IMapper _mapper;
 
-        public AppointmentController(IAppointmentRepository repository, ILogger<AppointmentController> logger, IMapper mapper)
+        public AppointmentController(IAppointmentService service, ILogger<AppointmentController> logger, IMapper mapper)
         {
-            _repository = repository;
+            _service = service;
             _logger = logger;
             _mapper = mapper;
         }
@@ -27,7 +28,7 @@ namespace API_SGHSS.Controllers
         public ActionResult<IEnumerable<AppointmentDTO>> GetAll()
         {
             _logger.LogInformation("Buscando todas as consultas Registrados");
-            var appointments = _repository.GetAppointments();
+            var appointments = _service.GetAppointments();
 
             _logger.LogInformation("Retornando todas as consultas Registrados");
             var appointmentsDTO = _mapper.Map<IEnumerable<AppointmentDTO>>(appointments);
@@ -38,7 +39,7 @@ namespace API_SGHSS.Controllers
         public ActionResult<AppointmentDTO> Get(int id)
         {
             _logger.LogInformation($"Buscando a consutla com Id = {id}");
-            var appointment = _repository.GetAppointment(id);
+            var appointment = _service.GetAppointment(id);
 
             if (appointment is null)
             {
@@ -54,19 +55,12 @@ namespace API_SGHSS.Controllers
         [HttpPost]
         public ActionResult<AppointmentDTO> Post(AppointmentCreateDTO appointmentCreateDTO)
         {
-            if (appointmentCreateDTO is null)
-            {
-                _logger.LogWarning("Dados para cadastrar uma nova consulta estão inválidos");
-                return NotFound("Dados ao cadastrar uma nova consulta estão inválidos");
-            }
-
             var appointment = _mapper.Map<Appointment>(appointmentCreateDTO);
 
             _logger.LogInformation("Criando uma nova consulta");
-            var newAppointment = _repository.Create(appointment);
+            var newAppointment = _service.Create(appointment);
 
             _logger.LogInformation("retornando uma nova consulta");
-            
             var newAppointmentDTO = _mapper.Map<AppointmentDTO>(newAppointment);
             return new CreatedAtRouteResult("ObterAppointment", new { id = newAppointmentDTO.Id }, newAppointmentDTO);
         }
@@ -76,22 +70,21 @@ namespace API_SGHSS.Controllers
         {
             if (id != appointmentUpdateDTO.Id)
             {
-                _logger.LogWarning("Dados para buscar uma consulta estão inválidos");
-                return NotFound("Dados para buscar uma consulta estão inválidos");
+                _logger.LogWarning("Os IDs da rota e do corpo precisam ser iguais.");
+                return BadRequest("Os IDs da rota e do corpo precisam ser iguais.");
             }
 
-            var existingAppointment = _repository.GetAppointment(id);
+            var existingAppointment = _service.GetAppointment(id);
             if(existingAppointment is null)
                 return NotFound($"Consulta com ID igual a {id} não encontrado.");
 
             _mapper.Map(appointmentUpdateDTO, existingAppointment);
 
             _logger.LogInformation($"atualizando a consulta do id = {id}");
-            var updatingAppointment = _repository.Update(existingAppointment);
-
-            var updatingAppointmentDTO = _mapper.Map<AppointmentDTO>(updatingAppointment);
+            var updatingAppointment = _service.Update(existingAppointment);
 
             _logger.LogInformation($"Retornando a consulta com os dados atualizados");
+            var updatingAppointmentDTO = _mapper.Map<AppointmentDTO>(updatingAppointment);
             return Ok(updatingAppointmentDTO);
         }
 
@@ -99,7 +92,7 @@ namespace API_SGHSS.Controllers
         public ActionResult Delete(int id)
         {
             _logger.LogInformation("Obtendo id da consulta para deletá-lo");
-            var appointment = _repository.GetAppointment(id);
+            var appointment = _service.GetAppointment(id);
 
             if (appointment is null)
             {
@@ -108,7 +101,7 @@ namespace API_SGHSS.Controllers
             }
 
             _logger.LogInformation("Removendo a consulta do banco de dados e mostrando as informações da consulta removido");
-            _repository.Delete(id);
+            _service.Delete(id);
             return NoContent();
         }
     }

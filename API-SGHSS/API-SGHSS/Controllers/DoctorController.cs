@@ -1,6 +1,7 @@
 ﻿using API_SGHSS.DTOs.DoctorDTOs;
 using API_SGHSS.Models;
 using API_SGHSS.Repositories.Interfaces;
+using API_SGHSS.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,13 +12,13 @@ namespace API_SGHSS.Controllers
     [ApiController]
     public class DoctorController : ControllerBase
     {
-        private readonly IDoctorRepository _repository;
+        private readonly IDoctorService _service;
         private readonly ILogger<DoctorController> _logger;
         private readonly IMapper _mapper;
 
-        public DoctorController(IDoctorRepository repository, ILogger<DoctorController> logger, IMapper mapper)
+        public DoctorController(IDoctorService service, ILogger<DoctorController> logger, IMapper mapper)
         {
-            _repository = repository;
+            _service = service;
             _logger = logger;
             _mapper = mapper;
         }
@@ -26,7 +27,7 @@ namespace API_SGHSS.Controllers
         public ActionResult<IEnumerable<DoctorDTO>> GetAll()
         {
             _logger.LogInformation("Buscando todos os médicos Registrados");
-            var doctors = _repository.GetDoctors();
+            var doctors = _service.GetDoctors();
 
             _logger.LogInformation("Retornando todos os médicos Registrados");
             var doctorsDTO = _mapper.Map<IEnumerable<DoctorDTO>>(doctors);
@@ -37,7 +38,7 @@ namespace API_SGHSS.Controllers
         public ActionResult<DoctorDTO> Get(int id)
         {
             _logger.LogInformation($"Buscando o médico com Id = {id}");
-            var doctor = _repository.GetDoctor(id);
+            var doctor = _service.GetDoctor(id);
 
             if (doctor is null)
             {
@@ -53,20 +54,13 @@ namespace API_SGHSS.Controllers
         [HttpPost]
         public ActionResult<DoctorDTO> Post(DoctorCreateDTO doctorCreateDTO)
         {
-            if (doctorCreateDTO is null)
-            {
-                _logger.LogWarning("Dados para cadastrar um novo médico estão inválidos");
-                return BadRequest("Dados ao cadastrar um novo médico estão inválidos");
-            }
-
             var doctor = _mapper.Map<Doctor>(doctorCreateDTO);
 
             _logger.LogInformation("Criando um novo médico");
-            var newDoctor = _repository.Create(doctor);
-
-            var newDoctorDTO = _mapper.Map<DoctorDTO>(newDoctor);
+            var newDoctor = _service.Create(doctor);
 
             _logger.LogInformation("retornando uma novo médico");
+            var newDoctorDTO = _mapper.Map<DoctorDTO>(newDoctor);
             return new CreatedAtRouteResult("ObterDoctor", new { id = newDoctorDTO.Id }, newDoctorDTO);
         }
 
@@ -79,18 +73,17 @@ namespace API_SGHSS.Controllers
                 return BadRequest("Dados para buscar um médico estão inválidos");
             }
             
-            var existingDoctor = _repository.GetDoctor(id);
+            var existingDoctor = _service.GetDoctor(id);
             if(existingDoctor is null)
                 return NotFound($"Médico com ID igual a {id} não encontrado.");
 
             _mapper.Map(doctorUpdateDTO, existingDoctor);
 
             _logger.LogInformation($"atualizando o médico do id = {id}");
-            var updatingDoctor = _repository.Update(existingDoctor);
-
-            var updatingDoctorDTO = _mapper.Map<DoctorDTO>(updatingDoctor);
+            var updatingDoctor = _service.Update(existingDoctor);
 
             _logger.LogInformation($"Retornando o médico com os dados atualizados");
+            var updatingDoctorDTO = _mapper.Map<DoctorDTO>(updatingDoctor);
             return Ok(updatingDoctorDTO);
         }
 
@@ -98,7 +91,7 @@ namespace API_SGHSS.Controllers
         public ActionResult Delete(int id)
         {
             _logger.LogInformation("Obtendo id do médico para deletá-lo");
-            var doctor = _repository.GetDoctor(id);
+            var doctor = _service.GetDoctor(id);
 
             if (doctor is null)
             {
@@ -107,7 +100,7 @@ namespace API_SGHSS.Controllers
             }
 
             _logger.LogInformation("Removendo o médico do banco de dados e mostrando as informações da consulta removido");
-            _repository.Delete(id);
+            _service.Delete(id);
             return NoContent();
         }
     }

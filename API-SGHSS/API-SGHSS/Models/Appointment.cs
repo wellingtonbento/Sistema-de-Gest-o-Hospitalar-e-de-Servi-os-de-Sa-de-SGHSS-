@@ -1,6 +1,5 @@
 ﻿using API_SGHSS.Models.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace API_SGHSS.Models
 {
