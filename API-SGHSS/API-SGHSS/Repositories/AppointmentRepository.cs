@@ -14,37 +14,37 @@ namespace API_SGHSS.Repositories
             _context = context;
         }
 
-        public IEnumerable<Appointment> GetAppointments()
+        public async Task<IEnumerable<Appointment>> GetAppointmentsAsync()
         {
-            return _context.Appointments.ToList();
+            return await _context.Appointments.ToListAsync();
         }
 
-        public Appointment GetAppointment(int id)
+        public async Task<Appointment> GetAppointmentAsync(int id)
         {
-            return _context.Appointments.FirstOrDefault(a => a.Id == id);
+            return await _context.Appointments.FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public Appointment Create(Appointment appointment)
+        public async Task<Appointment> CreateAsync(Appointment appointment)
         {
             if(appointment is null)
                 throw new ArgumentNullException(nameof(appointment));
 
             _context.Appointments.Add(appointment);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return appointment;
         }
 
-        public Appointment Update(Appointment appointment)
+        public async Task<Appointment> UpdateAsync(Appointment appointment)
         {
             if (appointment is null)
                 throw new ArgumentNullException(nameof(appointment));
 
             _context.Entry(appointment).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return appointment;
         }
 
-        public Appointment Delete(int id)
+        public async Task<Appointment> DeleteAsync(int id)
         {
             var doctor = _context.Appointments.Find(id);
 
@@ -52,7 +52,7 @@ namespace API_SGHSS.Repositories
                 throw new ArgumentNullException(nameof(doctor));
 
             _context.Remove(doctor);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return doctor;
         }
     }

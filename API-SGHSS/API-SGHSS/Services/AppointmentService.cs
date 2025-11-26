@@ -13,38 +13,38 @@ namespace API_SGHSS.Services
             _repository = repository;
         }
 
-        public IEnumerable<Appointment> GetAppointments()
+        public async Task<IEnumerable<Appointment>> GetAppointmentsAsync()
         {
-            return _repository.GetAppointments();
+            return await _repository.GetAppointmentsAsync();
         }
 
-        public Appointment GetAppointment(int id)
+        public async Task<Appointment> GetAppointmentAsync(int id)
         {
-            return _repository.GetAppointment(id);
+            return await _repository.GetAppointmentAsync(id);
         }
 
-        public Appointment Create(Appointment Appointment)
+        public async Task<Appointment> CreateAsync(Appointment Appointment)
         {
             ValidateAppoitment(Appointment);
 
-            return _repository.Create(Appointment);
+            return await _repository.CreateAsync(Appointment);
         }
 
-        public Appointment Update(Appointment Appointment)
+        public async Task<Appointment> UpdateAsync(Appointment Appointment)
         {
             ValidateAppoitment(Appointment);
 
-            return _repository.Update(Appointment);
+            return await _repository.UpdateAsync(Appointment);
         }
 
-        public Appointment Delete(int id)
+        public async Task<Appointment> DeleteAsync(int id)
         {
-            var existingAppointment = _repository.GetAppointment(id);
+            var existingAppointment = await _repository.GetAppointmentAsync(id);
 
             if (existingAppointment is null)
                 throw new ArgumentNullException(nameof(existingAppointment));
 
-            return _repository.Delete(id);
+            return await _repository.DeleteAsync(id);
         }
 
         private void ValidateAppoitment(Appointment appointment)

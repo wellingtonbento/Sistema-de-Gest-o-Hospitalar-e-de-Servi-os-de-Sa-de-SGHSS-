@@ -6,7 +6,6 @@ using API_SGHSS.Repositories.Interfaces;
 using API_SGHSS.Services;
 using API_SGHSS.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 

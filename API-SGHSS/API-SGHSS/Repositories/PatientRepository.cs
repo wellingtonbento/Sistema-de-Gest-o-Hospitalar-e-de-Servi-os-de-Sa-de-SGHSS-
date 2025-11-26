@@ -14,45 +14,45 @@ namespace API_SGHSS.Repositories
             _context = context;
         }
 
-        public IEnumerable<Patient> GetPatients()
+        public async Task<IEnumerable<Patient>> GetPatientsAsync()
         {
-            return _context.Patients.ToList();
+            return await _context.Patients.ToListAsync();
         }
 
-        public Patient GetPatient(int id)
+        public async Task<Patient> GetPatientAsync(int id)
         {
-            return _context.Patients.FirstOrDefault(p => p.Id == id);
+            return await _context.Patients.FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public Patient Create(Patient patient)
+        public async Task<Patient> CreateAsync(Patient patient)
         {
             if (patient is null)
                 throw new ArgumentNullException(nameof(patient));
 
             _context.Patients.Add(patient);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return patient;
         }
 
-        public Patient Update(Patient patient)
+        public async Task<Patient> UpdateAsync(Patient patient)
         {
             if (patient is null)
                 throw new ArgumentNullException(nameof(patient));
 
             _context.Entry(patient).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return patient;
         }
 
-        public Patient Delete(int id)
+        public async Task<Patient> DeleteAsync(int id)
         {
-            var patient = _context.Patients.Find(id);
+            var patient = await _context.Patients.FindAsync(id);
 
             if (patient is null)
                 throw new ArgumentNullException(nameof(patient));
 
             _context.Remove(patient);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return patient;
         }
     }

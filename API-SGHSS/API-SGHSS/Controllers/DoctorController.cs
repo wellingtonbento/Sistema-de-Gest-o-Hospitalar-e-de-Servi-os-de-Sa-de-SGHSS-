@@ -1,9 +1,7 @@
 ﻿using API_SGHSS.DTOs.DoctorDTOs;
 using API_SGHSS.Models;
-using API_SGHSS.Repositories.Interfaces;
 using API_SGHSS.Services.Interfaces;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_SGHSS.Controllers
@@ -24,10 +22,10 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<DoctorDTO>> GetAll()
+        public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetAll()
         {
             _logger.LogInformation("Buscando todos os médicos Registrados");
-            var doctors = _service.GetDoctors();
+            var doctors = await _service.GetDoctorsAsync();
 
             _logger.LogInformation("Retornando todos os médicos Registrados");
             var doctorsDTO = _mapper.Map<IEnumerable<DoctorDTO>>(doctors);
@@ -35,10 +33,10 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet("{id:int}", Name ="ObterDoctor")]
-        public ActionResult<DoctorDTO> Get(int id)
+        public async Task<ActionResult<DoctorDTO>> Get(int id)
         {
             _logger.LogInformation($"Buscando o médico com Id = {id}");
-            var doctor = _service.GetDoctor(id);
+            var doctor = await _service.GetDoctorAsync(id);
 
             if (doctor is null)
             {
@@ -52,12 +50,12 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpPost]
-        public ActionResult<DoctorDTO> Post(DoctorCreateDTO doctorCreateDTO)
+        public async Task<ActionResult<DoctorDTO>> Post(DoctorCreateDTO doctorCreateDTO)
         {
             var doctor = _mapper.Map<Doctor>(doctorCreateDTO);
 
             _logger.LogInformation("Criando um novo médico");
-            var newDoctor = _service.Create(doctor);
+            var newDoctor = await _service.CreateAsync(doctor);
 
             _logger.LogInformation("retornando uma novo médico");
             var newDoctorDTO = _mapper.Map<DoctorDTO>(newDoctor);
@@ -65,7 +63,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult<DoctorDTO> Put(int id, DoctorUpdateDTO doctorUpdateDTO)
+        public async Task<ActionResult<DoctorDTO>> Put(int id, DoctorUpdateDTO doctorUpdateDTO)
         {
             if(id != doctorUpdateDTO.Id)
             {
@@ -73,14 +71,14 @@ namespace API_SGHSS.Controllers
                 return BadRequest("Dados para buscar um médico estão inválidos");
             }
             
-            var existingDoctor = _service.GetDoctor(id);
+            var existingDoctor = await _service.GetDoctorAsync(id);
             if(existingDoctor is null)
                 return NotFound($"Médico com ID igual a {id} não encontrado.");
 
             _mapper.Map(doctorUpdateDTO, existingDoctor);
 
             _logger.LogInformation($"atualizando o médico do id = {id}");
-            var updatingDoctor = _service.Update(existingDoctor);
+            var updatingDoctor = await _service.UpdateAsync(existingDoctor);
 
             _logger.LogInformation($"Retornando o médico com os dados atualizados");
             var updatingDoctorDTO = _mapper.Map<DoctorDTO>(updatingDoctor);
@@ -88,10 +86,10 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             _logger.LogInformation("Obtendo id do médico para deletá-lo");
-            var doctor = _service.GetDoctor(id);
+            var doctor = await _service.GetDoctorAsync(id);
 
             if (doctor is null)
             {
@@ -100,7 +98,7 @@ namespace API_SGHSS.Controllers
             }
 
             _logger.LogInformation("Removendo o médico do banco de dados e mostrando as informações da consulta removido");
-            _service.Delete(id);
+            await _service.DeleteAsync(id);
             return NoContent();
         }
     }

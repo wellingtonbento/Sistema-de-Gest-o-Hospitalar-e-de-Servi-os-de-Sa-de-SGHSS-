@@ -1,11 +1,8 @@
 ﻿using API_SGHSS.DTOs.AppointmentDTOs;
 using API_SGHSS.Models;
-using API_SGHSS.Repositories.Interfaces;
 using API_SGHSS.Services.Interfaces;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace API_SGHSS.Controllers
 {
@@ -25,10 +22,10 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<AppointmentDTO>> GetAll()
+        public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetAll()
         {
             _logger.LogInformation("Buscando todas as consultas Registrados");
-            var appointments = _service.GetAppointments();
+            var appointments = await _service.GetAppointmentsAsync();
 
             _logger.LogInformation("Retornando todas as consultas Registrados");
             var appointmentsDTO = _mapper.Map<IEnumerable<AppointmentDTO>>(appointments);
@@ -36,10 +33,10 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet("{id:int}", Name = "ObterAppointment")]
-        public ActionResult<AppointmentDTO> Get(int id)
+        public async Task<ActionResult<AppointmentDTO>> Get(int id)
         {
             _logger.LogInformation($"Buscando a consutla com Id = {id}");
-            var appointment = _service.GetAppointment(id);
+            var appointment = await _service.GetAppointmentAsync(id);
 
             if (appointment is null)
             {
@@ -53,12 +50,12 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpPost]
-        public ActionResult<AppointmentDTO> Post(AppointmentCreateDTO appointmentCreateDTO)
+        public async Task<ActionResult<AppointmentDTO>> Post(AppointmentCreateDTO appointmentCreateDTO)
         {
             var appointment = _mapper.Map<Appointment>(appointmentCreateDTO);
 
             _logger.LogInformation("Criando uma nova consulta");
-            var newAppointment = _service.Create(appointment);
+            var newAppointment = await _service.CreateAsync(appointment);
 
             _logger.LogInformation("retornando uma nova consulta");
             var newAppointmentDTO = _mapper.Map<AppointmentDTO>(newAppointment);
@@ -66,7 +63,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult<AppointmentDTO> Put(int id, AppointmentUpdateDTO appointmentUpdateDTO)
+        public async Task<ActionResult<AppointmentDTO>> Put(int id, AppointmentUpdateDTO appointmentUpdateDTO)
         {
             if (id != appointmentUpdateDTO.Id)
             {
@@ -74,14 +71,14 @@ namespace API_SGHSS.Controllers
                 return BadRequest("Os IDs da rota e do corpo precisam ser iguais.");
             }
 
-            var existingAppointment = _service.GetAppointment(id);
+            var existingAppointment = await _service.GetAppointmentAsync(id);
             if(existingAppointment is null)
                 return NotFound($"Consulta com ID igual a {id} não encontrado.");
 
             _mapper.Map(appointmentUpdateDTO, existingAppointment);
 
             _logger.LogInformation($"atualizando a consulta do id = {id}");
-            var updatingAppointment = _service.Update(existingAppointment);
+            var updatingAppointment = await _service.UpdateAsync(existingAppointment);
 
             _logger.LogInformation($"Retornando a consulta com os dados atualizados");
             var updatingAppointmentDTO = _mapper.Map<AppointmentDTO>(updatingAppointment);
@@ -89,10 +86,10 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             _logger.LogInformation("Obtendo id da consulta para deletá-lo");
-            var appointment = _service.GetAppointment(id);
+            var appointment = await _service.GetAppointmentAsync(id);
 
             if (appointment is null)
             {
@@ -101,7 +98,7 @@ namespace API_SGHSS.Controllers
             }
 
             _logger.LogInformation("Removendo a consulta do banco de dados e mostrando as informações da consulta removido");
-            _service.Delete(id);
+            await _service.DeleteAsync(id);
             return NoContent();
         }
     }

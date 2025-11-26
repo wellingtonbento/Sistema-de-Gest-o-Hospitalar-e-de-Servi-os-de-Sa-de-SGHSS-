@@ -1,10 +1,7 @@
 ﻿using API_SGHSS.DTOs.PatientDTOs;
 using API_SGHSS.Models;
-using API_SGHSS.Repositories.Interfaces;
 using API_SGHSS.Services.Interfaces;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_SGHSS.Controllers
@@ -25,11 +22,10 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<PatientDTO>> GetAll()
+        public async Task<ActionResult<IEnumerable<PatientDTO>>> GetAll()
         {
-
             _logger.LogInformation("Buscando todos os Pacientes Registrados");
-            var patients = _service.GetPatients();
+            var patients = await _service.GetPatientsAsync();
 
             _logger.LogInformation("Retornando todos os Pacientes Registrados");
             var patientsDTO = _mapper.Map<IEnumerable<PatientDTO>>(patients);
@@ -37,10 +33,10 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet("{id:int}", Name = "ObterPatient")]
-        public ActionResult<PatientDTO> Get(int id)
+        public async Task<ActionResult<PatientDTO>> Get(int id)
         {
             _logger.LogInformation($"Buscando o paciente com Id = {id}");
-            var patient = _service.GetPatient(id);
+            var patient = await _service.GetPatientAsync(id);
 
             if (patient is null)
             {
@@ -54,12 +50,12 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpPost]
-        public ActionResult<PatientDTO> Post(PatientCreateDTO patientCreateDTO)
+        public async Task<ActionResult<PatientDTO>> Post(PatientCreateDTO patientCreateDTO)
         {
             var patient = _mapper.Map<Patient>(patientCreateDTO);
 
             _logger.LogInformation("Criando um novo paciente");
-            var newPatient = _service.Create(patient);
+            var newPatient = await _service.CreateAsync(patient);
 
             _logger.LogInformation("retornando o novo paciente");
             var newPatientDTO = _mapper.Map<PatientDTO>(newPatient);
@@ -67,7 +63,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult<PatientDTO> Put(int id, PatientUpdateDTO patientUpdateDTO)
+        public async Task<ActionResult<PatientDTO>> Put(int id, PatientUpdateDTO patientUpdateDTO)
         {
             if (id != patientUpdateDTO.Id)
             {
@@ -75,25 +71,25 @@ namespace API_SGHSS.Controllers
                 return BadRequest("Dados para buscar um paciente estão inválidos");
             }
                 
-            var existingPatient = _service.GetPatient(id);
+            var existingPatient = await _service.GetPatientAsync(id);
             if (existingPatient is null)
                 return NotFound($"Paciente com ID igual a {id} não encontrado.");
 
             _mapper.Map(patientUpdateDTO, existingPatient);
 
             _logger.LogInformation("atualizando o paciente");
-            var updatingPatient = _service.Update(existingPatient);
+            var updatingPatient = await _service.UpdateAsync(existingPatient);
 
             _logger.LogInformation("Retornando o paciente com os dados atualizados");
-            var updatingPatientDTO = _mapper.Map<PatientDTO>(existingPatient);
+            var updatingPatientDTO = _mapper.Map<PatientDTO>(updatingPatient);
             return Ok(updatingPatientDTO);
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             _logger.LogInformation("Obtendo id do paciente para deletá-lo");
-            var patient = _service.GetPatient(id);
+            var patient = await _service.GetPatientAsync(id);
 
             if (patient is null)
             {
@@ -102,7 +98,7 @@ namespace API_SGHSS.Controllers
             }
 
             _logger.LogInformation("Removendo o paciente do banco de dados e mostrando as informações do paciente removido");
-            _service.Delete(id);
+            await _service.DeleteAsync(id);
             return NoContent();
         }
     }

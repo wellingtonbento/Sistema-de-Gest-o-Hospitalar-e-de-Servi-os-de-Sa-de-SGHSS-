@@ -1,5 +1,4 @@
 ﻿using API_SGHSS.Models;
-using API_SGHSS.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace API_SGHSS.Context

@@ -13,38 +13,38 @@ namespace API_SGHSS.Services
             _repository = repository;
         }
 
-        public IEnumerable<Doctor> GetDoctors()
+        public async Task<IEnumerable<Doctor>> GetDoctorsAsync()
         {
-            return _repository.GetDoctors();
+            return await _repository.GetDoctorsAsync();
         }
 
-        public Doctor GetDoctor(int id)
+        public async Task<Doctor> GetDoctorAsync(int id)
         {
-            return _repository.GetDoctor(id);
+            return await _repository.GetDoctorAsync(id);
         }
 
-        public Doctor Create(Doctor doctor)
+        public async Task<Doctor> CreateAsync(Doctor doctor)
         {
             ValidateDoctor(doctor);
             
-            return _repository.Create(doctor);
+            return await _repository.CreateAsync(doctor);
         }
 
-        public Doctor Update(Doctor doctor)
+        public async Task<Doctor> UpdateAsync(Doctor doctor)
         {
             ValidateDoctor(doctor);
 
-            return _repository.Update(doctor);
+            return await _repository.UpdateAsync(doctor);
         }
 
-        public Doctor Delete(int id)
+        public async Task<Doctor> DeleteAsync(int id)
         {
-            var existingDoctor = _repository.GetDoctor(id);
+            var existingDoctor = await _repository.GetDoctorAsync(id);
 
             if (existingDoctor is null)
                 throw new ArgumentNullException(nameof(existingDoctor));
 
-            return _repository.Delete(id);
+            return await _repository.DeleteAsync(id);
         }
 
         private void ValidateDoctor(Doctor doctor)
@@ -56,7 +56,7 @@ namespace API_SGHSS.Services
                 throw new ArgumentException("O nome deve conter entre 3 e 100 caracteres.");
 
             if (doctor.Crm.Length != 9)
-                throw new ArgumentException("O CPF deve conter exatamente 9 dígitos.");
+                throw new ArgumentException("O CRM deve conter exatamente 9 dígitos.");
         }
     }
 }

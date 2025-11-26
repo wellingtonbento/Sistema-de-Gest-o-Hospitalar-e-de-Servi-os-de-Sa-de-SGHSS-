@@ -14,37 +14,37 @@ namespace API_SGHSS.Repositories
             _context = context;
         }
 
-        public IEnumerable<Doctor> GetDoctors()
+        public async Task<IEnumerable<Doctor>> GetDoctorsAsync()
         {
-            return _context.Doctors.ToList();
+            return await _context.Doctors.ToListAsync();
         }
 
-        public Doctor GetDoctor(int id)
+        public async Task<Doctor> GetDoctorAsync(int id)
         {
-            return _context.Doctors.FirstOrDefault(d => d.Id == id);
+            return await _context.Doctors.FirstOrDefaultAsync(d => d.Id == id);
         }
 
-        public Doctor Create(Doctor doctor)
+        public async Task<Doctor> CreateAsync(Doctor doctor)
         {
             if (doctor is null)
                 throw new ArgumentNullException(nameof(doctor));
 
             _context.Doctors.Add(doctor);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return doctor;
         }
 
-        public Doctor Update(Doctor doctor)
+        public async Task<Doctor> UpdateAsync(Doctor doctor)
         {
             if (doctor is null)
                 throw new ArgumentNullException(nameof(doctor));
 
             _context.Entry(doctor).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return doctor;
         }
 
-        public Doctor Delete(int id)
+        public async Task<Doctor> DeleteAsync(int id)
         {
             var doctor = _context.Doctors.Find(id);
 
@@ -52,7 +52,7 @@ namespace API_SGHSS.Repositories
                 throw new ArgumentNullException(nameof(doctor));
 
             _context.Remove(doctor);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return doctor;
         }
     }

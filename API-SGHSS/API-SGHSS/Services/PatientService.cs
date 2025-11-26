@@ -13,43 +13,43 @@ namespace API_SGHSS.Services
             _repository = repository;
         }
 
-        public IEnumerable<Patient> GetPatients()
+        public async Task<IEnumerable<Patient>> GetPatientsAsync()
         {
-            return _repository.GetPatients();
+            return await _repository.GetPatientsAsync();
         }
 
-        public Patient GetPatient(int id)
+        public async Task<Patient> GetPatientAsync(int id)
         {
-            return _repository.GetPatient(id);
+            return await _repository.GetPatientAsync(id);
         }
 
-        public Patient Create(Patient patient)
+        public async Task<Patient> CreateAsync(Patient patient)
         {
             ValidatePatient(patient);
 
-            return _repository.Create(patient);
+            return await _repository.CreateAsync(patient);
         }
 
-        public Patient Update(Patient patient)
+        public async Task<Patient> UpdateAsync(Patient patient)
         {
             ValidatePatient(patient);
 
-            var existingPatient = _repository.GetPatient(patient.Id);
+            var existingPatient = await _repository.GetPatientAsync(patient.Id);
 
             if (existingPatient is null)
                 throw new ArgumentNullException(nameof(existingPatient));
 
-            return _repository.Update(patient);
+            return await _repository.UpdateAsync(patient);
         }
 
-        public Patient Delete(int id)
+        public async Task<Patient> DeleteAsync(int id)
         {
-            var existingPatient = _repository.GetPatient(id);
+            var existingPatient = await _repository.GetPatientAsync(id);
 
             if(existingPatient is null)
                 throw new ArgumentNullException(nameof(existingPatient));
 
-            return _repository.Delete(id);
+            return await _repository.DeleteAsync(id);
         }
 
         private void ValidatePatient(Patient patient)

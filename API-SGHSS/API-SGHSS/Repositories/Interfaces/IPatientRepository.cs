@@ -4,10 +4,10 @@ namespace API_SGHSS.Repositories.Interfaces
 {
     public interface IPatientRepository
     {
-        public IEnumerable<Patient> GetPatients();
-        public Patient GetPatient(int id);
-        public Patient Create(Patient patient);
-        public Patient Update(Patient patient);
-        public Patient Delete(int id);
+        public Task<IEnumerable<Patient>> GetPatientsAsync();
+        public Task<Patient> GetPatientAsync(int id);
+        public Task<Patient> CreateAsync(Patient patient);
+        public Task<Patient> UpdateAsync(Patient patient);
+        public Task<Patient> DeleteAsync(int id);
     }
 }
