@@ -1,9 +1,10 @@
 ﻿using API_SGHSS.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace API_SGHSS.Context
 {
-    public class SGHSSContext : DbContext
+    public class SGHSSContext : IdentityDbContext<User>
     {
         public SGHSSContext(DbContextOptions<SGHSSContext> options) : base(options)
         {
@@ -15,6 +16,8 @@ namespace API_SGHSS.Context
 
         protected override void OnModelCreating(ModelBuilder mb)
         {
+            base.OnModelCreating(mb);
+
             //Patient
             mb.Entity<Patient>().HasKey(k => k.Id);
             mb.Entity<Patient>().Property(n => n.Name).HasMaxLength(100).IsRequired();

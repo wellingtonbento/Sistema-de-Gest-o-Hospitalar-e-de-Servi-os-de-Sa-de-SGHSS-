@@ -2,6 +2,7 @@
 using API_SGHSS.Models;
 using API_SGHSS.Services.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_SGHSS.Controllers
@@ -22,6 +23,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetAll()
         {
             _logger.LogInformation("Buscando todas as consultas Registrados");
@@ -33,6 +35,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet("{id:int}", Name = "ObterAppointment")]
+        [Authorize]
         public async Task<ActionResult<AppointmentDTO>> Get(int id)
         {
             _logger.LogInformation($"Buscando a consutla com Id = {id}");
@@ -50,6 +53,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<AppointmentDTO>> Post(AppointmentCreateDTO appointmentCreateDTO)
         {
             var appointment = _mapper.Map<Appointment>(appointmentCreateDTO);
@@ -63,6 +67,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize]
         public async Task<ActionResult<AppointmentDTO>> Put(int id, AppointmentUpdateDTO appointmentUpdateDTO)
         {
             if (id != appointmentUpdateDTO.Id)
@@ -86,6 +91,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> Delete(int id)
         {
             _logger.LogInformation("Obtendo id da consulta para deletá-lo");

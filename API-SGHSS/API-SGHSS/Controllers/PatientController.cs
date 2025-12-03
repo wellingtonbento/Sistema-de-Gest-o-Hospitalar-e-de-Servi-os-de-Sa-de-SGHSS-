@@ -2,6 +2,7 @@
 using API_SGHSS.Models;
 using API_SGHSS.Services.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_SGHSS.Controllers
@@ -22,6 +23,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<IEnumerable<PatientDTO>>> GetAll()
         {
             _logger.LogInformation("Buscando todos os Pacientes Registrados");
@@ -33,6 +35,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpGet("{id:int}", Name = "ObterPatient")]
+        [Authorize(Policy = "PatientOrAdmin")]
         public async Task<ActionResult<PatientDTO>> Get(int id)
         {
             _logger.LogInformation($"Buscando o paciente com Id = {id}");
@@ -49,7 +52,9 @@ namespace API_SGHSS.Controllers
             return Ok(patientDTO);
         }
 
+        
         [HttpPost]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<PatientDTO>> Post(PatientCreateDTO patientCreateDTO)
         {
             var patient = _mapper.Map<Patient>(patientCreateDTO);
@@ -63,6 +68,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Policy = "PatientOrAdmin")]
         public async Task<ActionResult<PatientDTO>> Put(int id, PatientUpdateDTO patientUpdateDTO)
         {
             if (id != patientUpdateDTO.Id)
@@ -86,6 +92,7 @@ namespace API_SGHSS.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> Delete(int id)
         {
             _logger.LogInformation("Obtendo id do paciente para deletá-lo");
