@@ -9,6 +9,7 @@ namespace API_SGHSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class PatientController : ControllerBase
     {
         private readonly IPatientService _service;
@@ -22,8 +23,13 @@ namespace API_SGHSS.Controllers
             _mapper = mapper; 
         }
 
+        /// <summary>
+        /// Obtem uma lista de Paciente.
+        /// </summary>
+        /// <returns>Retorna 200 OK e uma lista de PacienteDTO.</returns>
         [HttpGet]
         [Authorize(Policy = "Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<PatientDTO>>> GetAll()
         {
             _logger.LogInformation("Buscando todos os Pacientes Registrados");
@@ -34,8 +40,15 @@ namespace API_SGHSS.Controllers
             return Ok(patientsDTO);
         }
 
+        /// <summary>
+        /// Obtem um Paciente Pelo seu identificador Id.
+        /// </summary>
+        /// <param name="id">Identificador do Paciente</param>
+        /// <returns>Retorna um 200 OK ou 404 NotFound e um PacienteDTO.</returns>
         [HttpGet("{id:int}", Name = "ObterPatient")]
         [Authorize(Policy = "PatientOrAdmin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<PatientDTO>> Get(int id)
         {
             _logger.LogInformation($"Buscando o paciente com Id = {id}");
@@ -52,9 +65,24 @@ namespace API_SGHSS.Controllers
             return Ok(patientDTO);
         }
 
-        
+        /// <summary>
+        /// Cria um novo Paciente.
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de request:
+        /// 
+        ///     POST api/Patient
+        ///     {
+        ///         "Name": maria,
+        ///         "email": maria@gmail.com,
+        ///         "Cpf":12345678901
+        ///     }
+        /// </remarks>
+        /// <param name="patientCreateDTO">Objeto PacienteDTO</param>
+        /// <returns>Retorna 2001 Created e um PacienteDTO criando.</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<PatientDTO>> Post(PatientCreateDTO patientCreateDTO)
         {
             var patient = _mapper.Map<Patient>(patientCreateDTO);
@@ -67,8 +95,28 @@ namespace API_SGHSS.Controllers
             return new CreatedAtRouteResult("ObterPatient", new { id = newPatientDTO.Id }, newPatientDTO);
         }
 
+        /// <summary>
+        /// Atualiza um Paciente pelo seu identificador Id.
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de request:
+        /// 
+        ///     PUT api/Patient
+        ///     {
+        ///         "Id":1,
+        ///         "Name": maria,
+        ///         "email": maria@gmail.com,
+        ///         "Cpf":12345678901
+        ///     }
+        /// </remarks>
+        /// <param name="id">Identificador do Paciente</param>
+        /// <param name="patientUpdateDTO">Objeto PacienteDTO</param>
+        /// <returns>Retornar um 200 OK ou 400 BadRequest ou 404 NotFound e um pacienteDTO atualizado.</returns>
         [HttpPut("{id:int}")]
         [Authorize(Policy = "PatientOrAdmin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<PatientDTO>> Put(int id, PatientUpdateDTO patientUpdateDTO)
         {
             if (id != patientUpdateDTO.Id)
@@ -91,8 +139,15 @@ namespace API_SGHSS.Controllers
             return Ok(updatingPatientDTO);
         }
 
+        /// <summary>
+        /// Deleta um Paciente pelo seu identificador Id.
+        /// </summary>
+        /// <param name="id">Identificador do Paciente</param>
+        /// <returns>Retorna 204 NoContent ou 404 NotFound</returns>
         [HttpDelete("{id:int}")]
         [Authorize(Policy = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
             _logger.LogInformation("Obtendo id do paciente para deletá-lo");

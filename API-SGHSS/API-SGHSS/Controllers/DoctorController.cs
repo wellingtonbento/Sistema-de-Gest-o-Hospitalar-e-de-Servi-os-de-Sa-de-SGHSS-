@@ -9,6 +9,7 @@ namespace API_SGHSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class DoctorController : ControllerBase
     {
         private readonly IDoctorService _service;
@@ -22,8 +23,13 @@ namespace API_SGHSS.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Obtem uma lista de Doutores.
+        /// </summary>
+        /// <returns>Retorna 200 OK e uma lista de DoutorDTO</returns>
         [HttpGet]
         [Authorize(Policy = "Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetAll()
         {
             _logger.LogInformation("Buscando todos os médicos Registrados");
@@ -34,8 +40,15 @@ namespace API_SGHSS.Controllers
             return Ok(doctorsDTO);
         }
 
+        /// <summary>
+        /// Obtem um Doutor pelo seu identificador Id.
+        /// </summary>
+        /// <param name="id">Identificador do doutor</param>
+        /// <returns>Retorna um 200 OK ou 404 NotFound e um DoutorDTO</returns>
         [HttpGet("{id:int}", Name ="ObterDoctor")]
         [Authorize(Policy = "DoctorOrAdmin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<DoctorDTO>> Get(int id)
         {
             _logger.LogInformation($"Buscando o médico com Id = {id}");
@@ -52,8 +65,24 @@ namespace API_SGHSS.Controllers
             return Ok(doctorDTO);
         }
 
+        /// <summary>
+        /// Cria um novo Doutor.
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de request:
+        /// 
+        ///     POST api/Doctor
+        ///         {
+        ///             "Name": carlos,
+        ///             "email": carlos@gmail.com,
+        ///             "Crm":123456789
+        ///         }
+        /// </remarks>
+        /// <param name="doctorCreateDTO">Objeto Doutor.</param>
+        /// <returns>Retorna 201 Created e um DoutorDTO criando.</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<DoctorDTO>> Post(DoctorCreateDTO doctorCreateDTO)
         {
             var doctor = _mapper.Map<Doctor>(doctorCreateDTO);
@@ -66,8 +95,26 @@ namespace API_SGHSS.Controllers
             return new CreatedAtRouteResult("ObterDoctor", new { id = newDoctorDTO.Id }, newDoctorDTO);
         }
 
+        /// <summary>
+        /// Atualiza um Doutor pelo seu identificador Id.
+        /// </summary>
+        /// <remarks>
+        ///     PUT api/Doctor
+        ///         {
+        ///             "Id":1,
+        ///             "Name": carlos,
+        ///             "email": carlos@gmail.com,
+        ///             "Crm":987654321
+        ///         }
+        /// </remarks>
+        /// <param name="id">Identificador do Doutor</param>
+        /// <param name="doctorUpdateDTO">Objeto doutor</param>
+        /// <returns>Retornar um 200 OK ou 400 BadRequest ou 404 NotFound e um doutorDTO atualizado.</returns>
         [HttpPut("{id:int}")]
         [Authorize(Policy = "DoctorOrAdmin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<DoctorDTO>> Put(int id, DoctorUpdateDTO doctorUpdateDTO)
         {
             if(id != doctorUpdateDTO.Id)
@@ -90,8 +137,15 @@ namespace API_SGHSS.Controllers
             return Ok(updatingDoctorDTO);
         }
 
+        /// <summary>
+        /// Deleta um Doutor pelo seu identificador Id.
+        /// </summary>
+        /// <param name="id">Identificador do Doutor.</param>
+        /// <returns>Retorna um 204 NoContent ou 404 NotFound</returns>
         [HttpDelete("{id:int}")]
         [Authorize(Policy = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
             _logger.LogInformation("Obtendo id do médico para deletá-lo");
